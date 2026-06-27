@@ -28,6 +28,7 @@ const Descargas       = lazy(() => import("@/pages/descargas").then(m => ({ defa
 const Catalogo        = lazy(() => import("@/pages/catalogo").then(m => ({ default: m.Catalogo })));
 const Faq             = lazy(() => import("@/pages/faq").then(m => ({ default: m.Faq })));
 const Referencias     = lazy(() => import("@/pages/referencias").then(m => ({ default: m.Referencias })));
+const Soporte         = lazy(() => import("@/pages/soporte").then(m => ({ default: m.Soporte })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +52,7 @@ function Gate({ children }: { children: React.ReactNode }) {
   const isAdminRoute = location.startsWith("/admin");
   const isRedeemRoute = location === "/redeem";
   const isDescargasRoute = location.startsWith("/descargas");
-  const isPublicRoute = location === "/faq" || location === "/referencias";
+  const isPublicRoute = location === "/faq" || location === "/referencias" || location === "/soporte";
   const isRootRoute = location === "/";
 
   useEffect(() => {
@@ -106,6 +107,7 @@ function Router() {
         <Route path="/descargas/:slug" component={Catalogo} />
         <Route path="/faq" component={Faq} />
         <Route path="/referencias" component={Referencias} />
+        <Route path="/soporte" component={Soporte} />
 
         <Route component={NotFound} />
       </Switch>

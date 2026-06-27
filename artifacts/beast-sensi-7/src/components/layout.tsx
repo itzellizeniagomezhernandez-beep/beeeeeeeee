@@ -166,6 +166,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 Referencias
                 {location === '/referencias' && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary shadow-[0_0_8px_rgba(139,92,246,0.8)]" />}
               </Link>
+
+              <Link href="/soporte" className={`text-sm font-display font-medium uppercase tracking-wider transition-all relative py-2 ${location === '/soporte' ? 'text-primary' : 'text-muted-foreground hover:text-white'}`}>
+                Soporte
+                {location === '/soporte' && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary shadow-[0_0_8px_rgba(139,92,246,0.8)]" />}
+              </Link>
             </nav>
 
             {/* Mobile Nav Toggle */}
@@ -197,6 +202,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </Link>
               <Link href="/referencias" onClick={() => setIsMenuOpen(false)} className={`text-lg font-display uppercase tracking-wider ${location === '/referencias' ? 'text-primary' : 'text-white'}`}>
                 Referencias
+              </Link>
+              <Link href="/soporte" onClick={() => setIsMenuOpen(false)} className={`text-lg font-display uppercase tracking-wider ${location === '/soporte' ? 'text-primary' : 'text-white'}`}>
+                Soporte
               </Link>
               <a
                 href="https://chat.whatsapp.com/KS0Wu6RRyaz8V28rSwPiT6?s=cl&p=i&mlu=4"
