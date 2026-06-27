@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/beast-admin/"
+title = "Beast Admin"
+version = "1.0.0"
+id = "artifacts/beast-admin"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/beast-admin/" ]
+localPort = 22322
+
+[services.development]
+run = "pnpm --filter @workspace/beast-admin run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/beast-admin", "run", "build" ]
+publicDir = "artifacts/beast-admin/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22322"
+BASE_PATH = "/beast-admin/"

@@ -1,0 +1,25 @@
+{
+  "name": "Beast Admin",
+  "short_name": "Beast Admin",
+  "description": "Panel de administración de Beast Sensi 7",
+  "start_url": "/beast-admin/",
+  "scope": "/beast-admin/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "admin-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "admin-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
