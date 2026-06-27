@@ -210,6 +210,36 @@ router.post("/support-tickets", async (req, res) => {
   return res.status(201).json({ ok: true, id: row.id });
 });
 
+// Public: consultar estado de un ticket por ID o licencia
+router.get("/support-tickets/lookup", async (req, res) => {
+  const { id, licenseKey } = req.query as { id?: string; licenseKey?: string };
+  if (!id && !licenseKey) return res.status(400).json({ error: "Proporciona id o licenseKey" });
+
+  let tickets: any[] = [];
+  if (id && !isNaN(Number(id))) {
+    tickets = await db.select({
+      id: supportTicketsTable.id,
+      subject: supportTicketsTable.subject,
+      status: supportTicketsTable.status,
+      adminReply: supportTicketsTable.adminReply,
+      createdAt: supportTicketsTable.createdAt,
+      resolvedAt: supportTicketsTable.resolvedAt,
+    }).from(supportTicketsTable).where(eq(supportTicketsTable.id, Number(id)));
+  } else if (licenseKey) {
+    tickets = await db.select({
+      id: supportTicketsTable.id,
+      subject: supportTicketsTable.subject,
+      status: supportTicketsTable.status,
+      adminReply: supportTicketsTable.adminReply,
+      createdAt: supportTicketsTable.createdAt,
+      resolvedAt: supportTicketsTable.resolvedAt,
+    }).from(supportTicketsTable).where(eq(supportTicketsTable.licenseKey, String(licenseKey).toUpperCase()));
+  }
+
+  if (!tickets.length) return res.status(404).json({ error: "No se encontró ningún ticket con esos datos" });
+  return res.json({ tickets });
+});
+
 // ─── AUDIT LOG ───────────────────────────────────────────────────────────────
 router.get("/admin/audit-log", requireAdmin, async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
