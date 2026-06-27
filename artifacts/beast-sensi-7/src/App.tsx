@@ -30,6 +30,7 @@ const Faq             = lazy(() => import("@/pages/faq").then(m => ({ default: m
 const Referencias     = lazy(() => import("@/pages/referencias").then(m => ({ default: m.Referencias })));
 const Soporte         = lazy(() => import("@/pages/soporte").then(m => ({ default: m.Soporte })));
 const VipSoporte      = lazy(() => import("@/pages/vip/soporte").then(m => ({ default: m.VipSoporte })));
+const Convertirte     = lazy(() => import("@/pages/convertirte").then(m => ({ default: m.Convertirte })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,6 +113,7 @@ function Router() {
         <Route path="/faq" component={Faq} />
         <Route path="/referencias" component={Referencias} />
         <Route path="/soporte" component={Soporte} />
+        <Route path="/convertirte" component={Convertirte} />
 
         <Route component={NotFound} />
       </Switch>

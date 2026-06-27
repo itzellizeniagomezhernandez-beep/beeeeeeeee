@@ -650,185 +650,20 @@ function ReferencesMarquee() {
           Únete al Grupo
         </a>
 
-        {/* Botón rojo que despliega el CTA */}
-        <button
-          onClick={() => setShowCta(v => !v)}
-          className="flex items-center gap-2.5 px-6 py-3 rounded-2xl font-display font-black uppercase tracking-widest text-sm text-white transition-all hover:scale-105 active:scale-95"
-          style={{
-            background: "linear-gradient(135deg, #dc2626, #ef4444, #b91c1c)",
-            boxShadow: "0 0 25px rgba(239,68,68,0.5), 0 4px 15px rgba(0,0,0,0.4)",
-          }}
-        >
-          <span>👑</span>
-          CONVIÉRTETE EN BEAST SENSI
-        </button>
-      </div>
-
-      {/* Panel expandible */}
-      <AnimatePresence>
-        {showCta && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="overflow-hidden"
+        <Link href="/convertirte">
+          <button
+            className="flex items-center gap-2.5 px-6 py-3 rounded-2xl font-display font-black uppercase tracking-widest text-sm text-white transition-all hover:scale-105 active:scale-95"
+            style={{
+              background: "linear-gradient(135deg, #dc2626, #ef4444, #b91c1c)",
+              boxShadow: "0 0 25px rgba(239,68,68,0.5), 0 4px 15px rgba(0,0,0,0.4)",
+            }}
           >
-            <div className="relative overflow-hidden pb-8 pt-6 px-4">
-              {/* Viñeta roja */}
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(220,38,38,0.1) 0%, transparent 70%)" }} />
-
-              {/* Imagen flotante con partículas */}
-              <div className="relative max-w-sm mx-auto">
-                {RED_DOTS.map((dot) => (
-                  <motion.div
-                    key={dot.id}
-                    className="absolute rounded-full pointer-events-none"
-                    style={{ left: dot.left, bottom: 0, width: dot.size, height: dot.size, background: "#ef4444", boxShadow: `0 0 ${dot.size * 2}px #ef4444` }}
-                    animate={{ y: [0, -280], opacity: [0, 0.9, 0.5, 0], scale: [0.5, 1, 0.6, 0.2] }}
-                    transition={{ duration: dot.duration, delay: dot.delay, repeat: Infinity, ease: "easeOut" }}
-                  />
-                ))}
-                <motion.img
-                  src={imgBeastSensiCta}
-                  alt="Conviértete en Beast Sensi"
-                  className="w-full rounded-2xl"
-                  style={{ boxShadow: "0 0 40px rgba(239,68,68,0.25), 0 0 80px rgba(0,0,0,0.5)" }}
-                  animate={{ y: [0, -8, 0], scale: [1, 1.012, 1] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-3/4 h-6 rounded-full blur-xl pointer-events-none" style={{ background: "rgba(239,68,68,0.3)" }} />
-              </div>
-
-              {/* Botón WhatsApp */}
-              <div className="flex justify-center mt-8">
-                <a
-                  href={`https://wa.me/526462676766?text=${encodeURIComponent("quiero convertirme en beast sensi")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-7 py-4 rounded-2xl font-display font-black uppercase tracking-widest text-white transition-all hover:scale-105 active:scale-95"
-                  style={{
-                    background: "linear-gradient(135deg, #dc2626, #ef4444, #b91c1c)",
-                    boxShadow: "0 0 30px rgba(239,68,68,0.5), 0 4px 20px rgba(0,0,0,0.4)",
-                    fontSize: "clamp(0.65rem, 3vw, 0.85rem)",
-                  }}
-                >
-                  <span>👑</span>
-                  CONVERTIRME EN BEAST SENSI
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </section>
-  );
-}
-
-const RED_DOTS = Array.from({ length: 18 }, (_, i) => ({
-  id: i,
-  left: `${5 + Math.floor((i * 37 + 11) % 90)}%`,
-  size: 3 + (i % 4),
-  duration: 3.5 + (i % 5) * 0.7,
-  delay: (i * 0.31) % 3,
-}));
-
-function BeastSensiCTA() {
-  const waLink = `https://wa.me/526462676766?text=${encodeURIComponent("quiero convertirme en beast sensi")}`;
-
-  return (
-    <section className="relative overflow-hidden pb-20 pt-4">
-      {/* Fondo negro con viñeta roja */}
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(220,38,38,0.12) 0%, rgba(0,0,0,0) 70%)" }} />
-
-      {/* Título */}
-      <div className="relative z-10 flex flex-col items-center gap-1 mb-6 px-4 text-center">
-        <span className="text-2xl">👑</span>
-        <h2
-          className="font-display font-black uppercase leading-none tracking-wide"
-          style={{
-            fontSize: "clamp(1.6rem, 7vw, 2.8rem)",
-            color: "#ef4444",
-            textShadow: "0 0 30px rgba(239,68,68,0.7), 0 0 60px rgba(239,68,68,0.3)",
-          }}
-        >
-          CONVIÉRTETE EN
-        </h2>
-        <h2
-          className="font-display font-black uppercase leading-none tracking-wide"
-          style={{
-            fontSize: "clamp(2rem, 9vw, 3.5rem)",
-            color: "#ffffff",
-            textShadow: "0 0 30px rgba(239,68,68,0.5)",
-          }}
-        >
-          BEAST SENSI
-        </h2>
-      </div>
-
-      {/* Imagen flotante con partículas rojas */}
-      <div className="relative z-10 max-w-sm mx-auto px-4">
-        <div className="relative">
-          {/* Puntos rojos subiendo */}
-          {RED_DOTS.map((dot) => (
-            <motion.div
-              key={dot.id}
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                left: dot.left,
-                bottom: 0,
-                width: dot.size,
-                height: dot.size,
-                background: "#ef4444",
-                boxShadow: `0 0 ${dot.size * 2}px #ef4444`,
-              }}
-              animate={{
-                y: [0, -280 - dot.size * 20],
-                opacity: [0, 0.9, 0.7, 0],
-                scale: [0.5, 1, 0.8, 0.3],
-              }}
-              transition={{
-                duration: dot.duration,
-                delay: dot.delay,
-                repeat: Infinity,
-                ease: "easeOut",
-              }}
-            />
-          ))}
-
-          {/* Imagen con float */}
-          <motion.img
-            src={imgBeastSensiCta}
-            alt="Conviértete en Beast Sensi"
-            className="w-full rounded-2xl"
-            style={{ boxShadow: "0 0 40px rgba(239,68,68,0.25), 0 0 80px rgba(0,0,0,0.6)" }}
-            animate={{ y: [0, -8, 0], scale: [1, 1.012, 1] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          />
-
-          {/* Brillo rojo inferior */}
-          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-8 rounded-full blur-xl pointer-events-none"
-            style={{ background: "rgba(239,68,68,0.3)" }} />
-        </div>
-      </div>
-
-      {/* Botón WhatsApp */}
-      <div className="relative z-10 flex justify-center mt-10 px-4">
-        <a
-          href={waLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 px-7 py-4 rounded-2xl font-display font-black uppercase tracking-widest text-white transition-all hover:scale-105 active:scale-95"
-          style={{
-            background: "linear-gradient(135deg, #dc2626, #ef4444, #b91c1c)",
-            boxShadow: "0 0 30px rgba(239,68,68,0.5), 0 4px 20px rgba(0,0,0,0.4)",
-            fontSize: "clamp(0.7rem, 3vw, 0.9rem)",
-          }}
-        >
-          <span className="text-lg">👑</span>
-          CONVERTIRME EN BEAST SENSI
-        </a>
+            <span>👑</span>
+            CONVIÉRTETE EN BEAST SENSI
+          </button>
+        </Link>
       </div>
     </section>
   );
 }
+
