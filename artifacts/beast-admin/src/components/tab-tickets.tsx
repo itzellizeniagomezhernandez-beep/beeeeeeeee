@@ -57,6 +57,8 @@ export function TabTickets({ token }: TabTicketsProps) {
     resolved: "border-green-500/40 text-green-400",
   };
 
+  const isVip = (t: any) => t.source === "vip";
+
   const filtered = (data?.tickets ?? []).filter(
     (t: any) => filterStatus === "all" || t.status === filterStatus
   );
@@ -104,14 +106,19 @@ export function TabTickets({ token }: TabTicketsProps) {
           ) : (
             <div className="space-y-3">
               {filtered.map((ticket: any) => (
-                <div key={ticket.id} className="rounded-xl bg-black/40 border border-primary/10 overflow-hidden">
+                <div key={ticket.id} className={`rounded-xl bg-black/40 border overflow-hidden ${isVip(ticket) ? "border-yellow-500/30 shadow-[0_0_12px_rgba(234,179,8,0.08)]" : "border-primary/10"}`}>
                   {/* Header */}
                   <button
-                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-primary/5 transition-colors"
+                    className={`w-full flex items-center gap-3 p-3 text-left hover:bg-primary/5 transition-colors ${isVip(ticket) ? "bg-yellow-500/5" : ""}`}
                     onClick={() => setExpanded(expanded === ticket.id ? null : ticket.id)}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
+                        {isVip(ticket) && (
+                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-yellow-500/50 text-yellow-400 bg-yellow-500/10">
+                            ⭐ VIP
+                          </span>
+                        )}
                         <span className="font-bold text-sm text-white truncate">{ticket.subject}</span>
                         <Badge variant="outline" className={`text-[10px] ${statusColor[ticket.status] ?? "text-zinc-400"}`}>
                           {ticket.status}

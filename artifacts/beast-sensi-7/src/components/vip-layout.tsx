@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Crosshair, User, Zap, LogOut, Menu, X, Target, Cpu, Wrench, Monitor } from "lucide-react";
+import { LayoutDashboard, Crosshair, User, Zap, LogOut, Menu, X, Target, Cpu, Wrench, Monitor, MessageSquare } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 function clearVipSession() {
@@ -79,6 +79,7 @@ export function VipLayout({ children }: { children: React.ReactNode }) {
     { href: "/vip/hud", icon: Monitor, label: "HUD Famosos" },
     { href: "/vip/optimizacion", icon: Cpu, label: "Optimización" },
     { href: "/vip/modificacion", icon: Wrench, label: "Modificación" },
+    { href: "/vip/soporte", icon: MessageSquare, label: "Soporte" },
     { href: "/vip/profile", icon: User, label: "Perfil" },
   ];
 

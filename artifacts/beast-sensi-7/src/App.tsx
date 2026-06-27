@@ -29,6 +29,7 @@ const Catalogo        = lazy(() => import("@/pages/catalogo").then(m => ({ defau
 const Faq             = lazy(() => import("@/pages/faq").then(m => ({ default: m.Faq })));
 const Referencias     = lazy(() => import("@/pages/referencias").then(m => ({ default: m.Referencias })));
 const Soporte         = lazy(() => import("@/pages/soporte").then(m => ({ default: m.Soporte })));
+const VipSoporte      = lazy(() => import("@/pages/vip/soporte").then(m => ({ default: m.VipSoporte })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -100,6 +101,9 @@ function Router() {
         </Route>
         <Route path="/vip/hud">
           <VipLayout><VipHud /></VipLayout>
+        </Route>
+        <Route path="/vip/soporte">
+          <VipLayout><VipSoporte /></VipLayout>
         </Route>
 
         <Route path="/boton" component={Boton} />

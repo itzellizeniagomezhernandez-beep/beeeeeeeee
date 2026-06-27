@@ -172,7 +172,12 @@ router.delete("/admin/discount-codes/:id", requireAdmin, async (req, res) => {
 // ─── SUPPORT TICKETS ─────────────────────────────────────────────────────────
 router.get("/admin/support-tickets", requireAdmin, async (_req, res) => {
   const tickets = await db.select().from(supportTicketsTable).orderBy(desc(supportTicketsTable.createdAt));
-  return res.json({ tickets });
+  // VIP tickets first, then by date
+  const sorted = [
+    ...tickets.filter((t: any) => t.source === "vip"),
+    ...tickets.filter((t: any) => t.source !== "vip"),
+  ];
+  return res.json({ tickets: sorted });
 });
 
 router.patch("/admin/support-tickets/:id", requireAdmin, async (req, res) => {
@@ -199,13 +204,14 @@ router.delete("/admin/support-tickets/:id", requireAdmin, async (req, res) => {
 
 // Public: crear ticket de soporte
 router.post("/support-tickets", async (req, res) => {
-  const { username, licenseKey, subject, message } = req.body;
+  const { username, licenseKey, subject, message, source } = req.body;
   if (!subject || !message) return res.status(400).json({ error: "Asunto y mensaje requeridos" });
   const [row] = await db.insert(supportTicketsTable).values({
     username: username ?? null,
     licenseKey: licenseKey ?? null,
     subject: subject.trim(),
     message: message.trim(),
+    source: source === "vip" ? "vip" : "public",
   }).returning();
   return res.status(201).json({ ok: true, id: row.id });
 });
