@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
 import { ModPhotosCard } from "@/components/mod-photos-card";
+import { TabAnalytics } from "@/components/tab-analytics";
+import { TabBlacklist } from "@/components/tab-blacklist";
+import { TabDescuentos } from "@/components/tab-descuentos";
+import { TabTickets } from "@/components/tab-tickets";
+import { TabAfiliados } from "@/components/tab-afiliados";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +53,12 @@ import {
   X,
   PlayCircle,
   Upload,
+  CheckSquare,
+  Square,
+  TrendingUp,
+  Shield,
+  Tag,
+  Users2,
 } from "lucide-react";
 import { GenerateLicenseInputDuration } from "@workspace/api-client-react";
 
@@ -314,7 +325,50 @@ export function AdminDashboard({ token, onLogout }: { token: string; onLogout: (
   const [vipPurchaseUrl, setVipPurchaseUrl] = useState("https://wa.me/526462676766?text=Hola,%20quiero%20comprar%20acceso%20VIP%20a%20Beast%20Sensi%207");
   const [welcomeMsg, setWelcomeMsg] = useState("");
 
-  const [activeTab, setActiveTab] = useState<'inicio'|'licencias'|'contenido'|'config'|'modificacion'|'feedback'>('inicio');
+  const [activeTab, setActiveTab] = useState<'inicio'|'licencias'|'contenido'|'config'|'modificacion'|'feedback'|'analytics'|'blacklist'|'descuentos'|'tickets'|'afiliados'>('inicio');
+
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [bulkPending, setBulkPending] = useState(false);
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (ids: number[]) => {
+    if (ids.every(id => selectedIds.has(id))) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(ids));
+    }
+  };
+
+  const handleBulkAction = async (action: "revoke" | "delete" | "reset") => {
+    if (selectedIds.size === 0) return;
+    const label = action === "revoke" ? "revocar" : action === "delete" ? "eliminar" : "resetear";
+    if (!confirm(`¿${label} ${selectedIds.size} licencias seleccionadas?`)) return;
+    setBulkPending(true);
+    try {
+      const r = await fetch("/api/admin/licenses/bulk-action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-token": token },
+        body: JSON.stringify({ ids: Array.from(selectedIds), action }),
+      });
+      const d = await r.json();
+      toast({ title: `${d.count} licencias procesadas`, description: `Acción: ${label}` });
+      setSelectedIds(new Set());
+      queryClient.invalidateQueries({ queryKey: ['adminLicenses'] });
+      queryClient.invalidateQueries({ queryKey: ['adminStats'] });
+    } catch {
+      toast({ title: "Error", description: "No se pudo completar la acción masiva.", variant: "destructive" });
+    } finally {
+      setBulkPending(false);
+    }
+  };
 
   const ALL_IPHONE_MODELS = [
     "iPhone 6","iPhone 6 Plus","iPhone 6s","iPhone 6s Plus",
@@ -721,9 +775,14 @@ export function AdminDashboard({ token, onLogout }: { token: string; onLogout: (
             { id: 'inicio',       label: 'Inicio',        emoji: '🏠' },
             { id: 'licencias',    label: 'Licencias',     emoji: '🔑' },
             { id: 'contenido',    label: 'Contenido',     emoji: '📦' },
-            { id: 'config',       label: 'Configuración', emoji: '⚙️' },
-            { id: 'modificacion', label: 'Modificación',  emoji: '📱' },
+            { id: 'config',       label: 'Config',        emoji: '⚙️' },
+            { id: 'modificacion', label: 'Modif',         emoji: '📱' },
             { id: 'feedback',     label: 'Feedback',      emoji: '⭐' },
+            { id: 'analytics',    label: 'Analíticas',    emoji: '📈' },
+            { id: 'blacklist',    label: 'Blacklist',     emoji: '🛡️' },
+            { id: 'descuentos',   label: 'Descuentos',    emoji: '🏷️' },
+            { id: 'tickets',      label: 'Tickets',       emoji: '💬' },
+            { id: 'afiliados',    label: 'Afiliados',     emoji: '👥' },
           ] as const).map(t => (
             <button
               key={t.id}
@@ -846,31 +905,65 @@ export function AdminDashboard({ token, onLogout }: { token: string; onLogout: (
 
           {/* Licenses Table */}
           <Card className="lg:col-span-2 bg-[rgba(255,255,255,0.02)] backdrop-blur-md border border-primary/20 shadow-[0_0_20px_rgba(139,92,246,0.05)]">
-            <CardHeader className="flex flex-row items-center justify-between gap-2 flex-wrap">
-              <CardTitle className="font-display uppercase tracking-wider text-lg flex items-center gap-2 text-white">
-                <Key className="w-5 h-5 text-primary" />
-                Registro de Licencias
-              </CardTitle>
-              <div className="flex items-center gap-2 flex-1 justify-end">
-                <Input
-                  placeholder="Buscar key o usuario..."
-                  value={licenseSearch}
-                  onChange={e => setLicenseSearch(e.target.value)}
-                  className="h-8 w-48 bg-black/60 border-primary/30 text-white text-xs focus:border-primary focus-visible:ring-primary"
-                />
-                <Button variant="outline" size="sm" title="Exportar CSV" className="h-8 border-green-500/40 bg-green-500/10 text-green-400 hover:bg-green-500/20 hover:text-white transition-colors" onClick={exportCSV}>
-                  <Download className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="sm" className="h-8 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:text-white transition-colors" onClick={() => queryClient.invalidateQueries({queryKey: ['adminLicenses', token]})}>
-                  <RefreshCw className={`w-4 h-4 ${licensesLoading ? 'animate-spin' : ''}`} />
-                </Button>
+            <CardHeader className="flex flex-col gap-3">
+              <div className="flex flex-row items-center justify-between gap-2 flex-wrap">
+                <CardTitle className="font-display uppercase tracking-wider text-lg flex items-center gap-2 text-white">
+                  <Key className="w-5 h-5 text-primary" />
+                  Registro de Licencias
+                </CardTitle>
+                <div className="flex items-center gap-2 flex-1 justify-end">
+                  <Input
+                    placeholder="Buscar key o usuario..."
+                    value={licenseSearch}
+                    onChange={e => setLicenseSearch(e.target.value)}
+                    className="h-8 w-48 bg-black/60 border-primary/30 text-white text-xs focus:border-primary focus-visible:ring-primary"
+                  />
+                  <Button variant="outline" size="sm" title="Exportar CSV" className="h-8 border-green-500/40 bg-green-500/10 text-green-400 hover:bg-green-500/20 hover:text-white transition-colors" onClick={exportCSV}>
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-8 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:text-white transition-colors" onClick={() => queryClient.invalidateQueries({queryKey: ['adminLicenses', token]})}>
+                    <RefreshCw className={`w-4 h-4 ${licensesLoading ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
               </div>
+              {/* Bulk actions bar */}
+              {selectedIds.size > 0 && (
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10 border border-primary/20 flex-wrap">
+                  <span className="text-xs font-bold text-primary">{selectedIds.size} seleccionadas</span>
+                  <div className="flex gap-2 ml-auto">
+                    <Button size="sm" variant="outline" disabled={bulkPending} onClick={() => handleBulkAction("reset")} className="h-7 text-xs border-blue-500/40 text-blue-400 hover:bg-blue-500/10">
+                      <RefreshCw className="w-3 h-3 mr-1" /> Resetear
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={bulkPending} onClick={() => handleBulkAction("revoke")} className="h-7 text-xs border-orange-500/40 text-orange-400 hover:bg-orange-500/10">
+                      <Ban className="w-3 h-3 mr-1" /> Revocar
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={bulkPending} onClick={() => handleBulkAction("delete")} className="h-7 text-xs border-red-500/40 text-red-400 hover:bg-red-500/10">
+                      <Trash2 className="w-3 h-3 mr-1" /> Eliminar
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())} className="h-7 text-xs text-zinc-500">
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="rounded-md border border-primary/20 bg-black/40 overflow-hidden">
                 <Table>
                   <TableHeader className="bg-black/60 border-b border-primary/20">
                     <TableRow className="border-0 hover:bg-transparent">
+                      <TableHead className="w-8">
+                        <button onClick={() => {
+                          const filtered = (licenses ?? []).filter((l: any) => {
+                            if (!licenseSearch.trim()) return true;
+                            const q = licenseSearch.toLowerCase();
+                            return l.key.toLowerCase().includes(q) || (l.username ?? "").toLowerCase().includes(q);
+                          });
+                          toggleSelectAll(filtered.map((l: any) => l.id));
+                        }} className="text-zinc-500 hover:text-primary">
+                          {selectedIds.size > 0 ? <CheckSquare className="w-4 h-4 text-primary" /> : <Square className="w-4 h-4" />}
+                        </button>
+                      </TableHead>
                       <TableHead className="font-mono text-xs text-muted-foreground">KEY</TableHead>
                       <TableHead className="font-mono text-xs text-muted-foreground">USUARIO</TableHead>
                       <TableHead className="font-mono text-xs text-muted-foreground">TIPO</TableHead>
@@ -882,14 +975,14 @@ export function AdminDashboard({ token, onLogout }: { token: string; onLogout: (
                   <TableBody>
                     {licensesLoading ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                        <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                           <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
                           Cargando...
                         </TableCell>
                       </TableRow>
                     ) : licenses?.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                        <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                           No hay licencias registradas.
                         </TableCell>
                       </TableRow>
@@ -901,7 +994,12 @@ export function AdminDashboard({ token, onLogout }: { token: string; onLogout: (
                           return l.key.toLowerCase().includes(q) || (l.username ?? "").toLowerCase().includes(q);
                         })
                         .map((license: any) => (
-                        <TableRow key={license.id} className="border-b border-primary/10 hover:bg-primary/5 transition-colors">
+                        <TableRow key={license.id} className={`border-b border-primary/10 hover:bg-primary/5 transition-colors ${selectedIds.has(license.id) ? 'bg-primary/10' : ''}`}>
+                          <TableCell className="w-8">
+                            <button onClick={() => toggleSelect(license.id)} className="text-zinc-500 hover:text-primary">
+                              {selectedIds.has(license.id) ? <CheckSquare className="w-4 h-4 text-primary" /> : <Square className="w-4 h-4" />}
+                            </button>
+                          </TableCell>
                           <TableCell className="font-mono text-sm text-white">
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-2">
@@ -2319,6 +2417,31 @@ export function AdminDashboard({ token, onLogout }: { token: string; onLogout: (
             )}
           </CardContent>
         </Card>
+        )}
+
+        {/* ===== ANALYTICS ===== */}
+        {activeTab === 'analytics' && (
+          <TabAnalytics token={token} />
+        )}
+
+        {/* ===== BLACKLIST ===== */}
+        {activeTab === 'blacklist' && (
+          <TabBlacklist token={token} />
+        )}
+
+        {/* ===== DESCUENTOS ===== */}
+        {activeTab === 'descuentos' && (
+          <TabDescuentos token={token} />
+        )}
+
+        {/* ===== TICKETS ===== */}
+        {activeTab === 'tickets' && (
+          <TabTickets token={token} />
+        )}
+
+        {/* ===== AFILIADOS ===== */}
+        {activeTab === 'afiliados' && (
+          <TabAfiliados token={token} />
         )}
 
       </div>

@@ -4,3 +4,8 @@ export * from "./settings";
 export * from "./ratings";
 export * from "./sessions";
 export * from "./suspicious_attempts";
+export * from "./device_blacklist";
+export * from "./discount_codes";
+export * from "./support_tickets";
+export * from "./audit_log";
+export * from "./affiliates";
