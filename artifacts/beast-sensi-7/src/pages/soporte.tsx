@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, Send, CheckCircle, Loader2, Search, Clock, AlertCircle, RefreshCw } from "lucide-react";
+import { motion } from "framer-motion";
+import { MessageSquare, Send, CheckCircle, Loader2, Clock, RefreshCw } from "lucide-react";
 
 const COMMON_ISSUES = [
   { q: "Mi clave no funciona", hint: "Clave expirada o dispositivo diferente" },
@@ -103,93 +103,6 @@ function MyTickets() {
   );
 }
 
-/* ── Lookup manual ──────────────────────────────────────────────────────── */
-function TicketLookup() {
-  const [query, setQuery] = useState("");
-  const [mode, setMode] = useState<"id" | "licencia">("id");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any[] | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    setLoading(true); setResult(null); setErr(null);
-    try {
-      const param = mode === "id" ? `id=${encodeURIComponent(query.trim())}` : `licenseKey=${encodeURIComponent(query.trim().toUpperCase())}`;
-      const r = await fetch(`/api/support-tickets/lookup?${param}`);
-      const d = await r.json();
-      r.ok ? setResult(d.tickets) : setErr(d.error ?? "No encontrado");
-    } catch { setErr("Error de conexión."); }
-    finally { setLoading(false); }
-  };
-
-  return (
-    <div className="rounded-2xl border border-primary/20 bg-[rgba(255,255,255,0.02)] p-6">
-      <h2 className="font-display font-black text-lg uppercase tracking-wider text-white mb-1 flex items-center gap-2">
-        <Search className="w-5 h-5 text-primary" /> Consultar ticket
-      </h2>
-      <p className="text-zinc-500 text-xs mb-5">Busca por número de ticket o por tu licencia.</p>
-
-      <div className="flex gap-2 mb-4">
-        {(["id", "licencia"] as const).map(m => (
-          <button key={m} type="button" onClick={() => { setMode(m); setQuery(""); setResult(null); setErr(null); }}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${mode === m ? "bg-primary text-white" : "bg-primary/10 text-zinc-400 hover:bg-primary/20"}`}
-          >
-            {m === "id" ? "N° de ticket" : "Mi licencia"}
-          </button>
-        ))}
-      </div>
-
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <input type="text" value={query} onChange={e => setQuery(e.target.value)}
-          placeholder={mode === "id" ? "Ej: 12" : "XXXX-XXXX-XXXX-XXXX"}
-          className="flex-1 bg-black/40 border border-primary/20 rounded-xl px-4 py-2.5 text-white text-sm font-mono placeholder:text-zinc-600 focus:outline-none focus:border-primary/60 transition-colors"
-        />
-        <button type="submit" disabled={loading || !query.trim()}
-          className="px-5 py-2.5 rounded-xl font-display font-black uppercase tracking-wider text-white text-xs flex items-center gap-1.5 disabled:opacity-40 transition-all"
-          style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7)" }}
-        >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />} Buscar
-        </button>
-      </form>
-
-      <AnimatePresence>
-        {err && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="mt-4 flex items-center gap-2 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
-          >
-            <AlertCircle className="w-4 h-4 shrink-0" /> {err}
-          </motion.p>
-        )}
-        {result?.map((t: any) => {
-          const st = STATUS_LABELS[t.status] ?? { label: t.status, color: "text-zinc-400 border-zinc-500/30 bg-zinc-500/5", icon: null };
-          return (
-            <motion.div key={t.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              className="mt-4 rounded-xl border border-primary/15 bg-black/40 overflow-hidden"
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-primary/10">
-                <div>
-                  <p className="font-bold text-sm text-white">{t.subject}</p>
-                  <p className="text-[11px] text-zinc-600 font-mono mt-0.5">Ticket #{t.id} · {new Date(t.createdAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}</p>
-                </div>
-                <span className={`flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full border ${st.color}`}>
-                  {st.icon} {st.label}
-                </span>
-              </div>
-              <div className="px-4 py-3">
-                {t.adminReply
-                  ? <><p className="text-[10px] uppercase tracking-widest text-primary font-bold mb-1">Respuesta del equipo</p><p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">{t.adminReply}</p></>
-                  : <p className="text-sm text-zinc-500 flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-yellow-500/60 shrink-0" /> En espera de respuesta.</p>
-                }
-              </div>
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 /* ── Main page ──────────────────────────────────────────────────────────── */
 export function SoporteForm({ source = "public", prefillUsername = "", prefillLicenseKey = "" }: {
@@ -346,10 +259,12 @@ export function Soporte() {
         <SoporteForm source="public" />
       </motion.div>
 
-      {/* Manual lookup */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <TicketLookup />
-      </motion.div>
+      {/* Hint */}
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+        className="text-center text-xs text-zinc-600"
+      >
+        ¿No ves la respuesta? El equipo aún no ha respondido — te contestamos lo más pronto posible 🙌
+      </motion.p>
     </div>
   );
 }
